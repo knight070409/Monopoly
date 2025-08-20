@@ -38,8 +38,10 @@ jobs:
       - name: Build with Unity (WebGL)
         uses: game-ci/unity-builder@v4
         env:
-          # REQUIRED if you use manual (Personal) license activation (explained below)
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+
         with:
           projectPath: .
           targetPlatform: WebGL
