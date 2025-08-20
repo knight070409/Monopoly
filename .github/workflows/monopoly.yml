@@ -47,7 +47,6 @@ jobs:
           targetPlatform: WebGL
           unityVersion: 6000.0.23f1   # set this to match ProjectSettings/ProjectVersion.txt
           buildName: Monopoly
-          buildPath: build
 
       # Hand off the built site to the Pages deployment job
       - name: Upload Pages artifact
