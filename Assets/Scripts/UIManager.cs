@@ -46,7 +46,7 @@ public class UIManager : MonoBehaviour
             UpdateTurnUI(GameManager.Instance.CurrentPlayerIndex);
         }
         panel.SetActive(false);
-        UIManager.Instance.ShowPlayerInfo();
+        ShowPlayerInfo();
     }
 
     private void OnDisable()
@@ -109,6 +109,7 @@ public class UIManager : MonoBehaviour
         }
         else
         {
+            AddLog($"{currentPlayer.name} can't afford {currentTile.tileName}");
             Debug.Log($"{currentPlayer.name} can't afford {currentTile.tileName}");
         }
 
@@ -122,6 +123,7 @@ public class UIManager : MonoBehaviour
         {
             if (GameManager.Instance.RolledSix && !GameManager.Instance.CurrentPlayer.IsInJail)
             {
+                AddLog($"{currentPlayer.name} rolled a 6! Gets another turn.");
                 Debug.Log("Player passed but had rolled a 6 — gets another turn.");
                 GameManager.Instance.EnableDiceRoll(); // Allow dice roll again
             }

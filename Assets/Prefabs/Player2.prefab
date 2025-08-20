@@ -104,3 +104,4 @@ MonoBehaviour:
   PlayerId: 0
   Money: 1500
   IsInJail: 0
+  OwnedProperties: []
