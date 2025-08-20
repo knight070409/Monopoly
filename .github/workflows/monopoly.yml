@@ -2,54 +2,65 @@ name: Monopoly WebGL Build
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ "main" ]       # change to "master" if your default branch is master
+  workflow_dispatch:            # lets you run it manually from the Actions tab
+
+# Needed for official GitHub Pages deployment
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Avoid racing deployments if multiple commits come quickly
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  buildWebGL:
-    name: Build WebGL Player
+  build:
+    name: Build WebGL
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repo
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
 
-      # Cache Unity
-      - uses: actions/cache@v4
+      # Speeds up subsequent builds by caching the Unity Library/ directory
+      - name: Cache Library
+        uses: actions/cache@v4
         with:
           path: Library
           key: Library-${{ runner.os }}-${{ hashFiles('**/Packages/manifest.json') }}
           restore-keys: |
             Library-${{ runner.os }}-
 
-      # Unity Builder
-      - name: Build project
+      # Build with GameCI (Unity in Docker)
+      - name: Build with Unity (WebGL)
         uses: game-ci/unity-builder@v4
+        env:
+          # REQUIRED if you use manual (Personal) license activation (explained below)
+          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
         with:
+          projectPath: .
           targetPlatform: WebGL
-          unityVersion: 6000.0.23f1 # Change to your Unity version
+          unityVersion: 6000.0.23f1   # set this to match ProjectSettings/ProjectVersion.txt
+          buildName: Monopoly
+          buildPath: build
 
-      # Upload build artifacts
-      - name: Upload WebGL Build
-        uses: actions/upload-artifact@v4
+      # Hand off the built site to the Pages deployment job
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: WebGL-Build
           path: build/WebGL
 
-  deployToPages:
-    needs: buildWebGL
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: WebGL-Build
-          path: ./build
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build/WebGL
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
